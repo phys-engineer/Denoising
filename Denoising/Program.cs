@@ -21,6 +21,11 @@ namespace Denoising
             //double [] date1 = new double[] { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
             List<double> data1 = new List<double>();
             data1 = Load("data.txt");
+            int M = data1.Count;
+            double J = Math.Log (2, M);
+            double sigm = 8.5E-7; //сигма для 3D
+            double t0 = Math.Sqrt(2*Math.Log(M)/M)*2*sigm;  // часть отсечки. ее ещу нужно добножить на Math.Pow(2, (J-j)/2)) на каждом шаге 
+                                                           // j - шаг итерации. С большим шагом t будет все меньше и меньше. 
             
             List<double> data2 = new List<double>();
             List<double> datapconvAp1 = new List<double>();
@@ -56,7 +61,7 @@ namespace Denoising
             printAr(result.Item1, "icoeffsv 1");
             printAr(result.Item2, "icoeffsv 2");
 
-            var resultWave1 = pconv(data1, CL, CH, 0);
+            var resultWave1 = pconv(data1, CL, CH, 0, J, 0);
             datapconvAp1 = resultWave1.Item1;
             datapconvDec1 = resultWave1.Item2;
 
@@ -92,11 +97,12 @@ namespace Denoising
             Console.WriteLine();
 
         }
-        static Tuple<List<double>, List<double>> pconv(List<double> data, double[] CL, double[] CH, int delta)
+        static Tuple<List<double>, List<double>> pconv(List<double> data, double[] CL, double[] CH, int delta, double J, int step)
         {
             int N = CL.Length;
             int M = data.Count;
             double sL=0, sH=0;
+            double t=t0*Math.Pow(2, (J-step)/2));
 
             List<double> outsL = new List<double>();
             List<double> outhL = new List<double>();
@@ -109,6 +115,11 @@ namespace Denoising
                 {    sL += data[(M +k + i - delta) % M] * CL[i];
                 sH += data[(M +k + i - delta) % M] * CH[i];
                   }
+                
+                if (Math.Abs(sH) < t) 
+                    sH=0;
+                    else
+                        sH=Math.Sign (sH) * (Math.Abs(sH)-t);
                 outsL.Add (sL);                 // Добавляем коэффициенты в список
                 outhL.Add (sH );
             }
