@@ -118,6 +118,33 @@ namespace Denoising
             var tuple = new Tuple<List<double>, List<double>>(outsL, outhL);
             return tuple;
         }
+        
+        static List<double> pconvBack(List<double> Ap, List<double> Dec, double[] CL, double[] CH, int delta)
+        {
+            int N = CL.Length;
+            int M = Ap.Count;
+            double sL=0, sH=0;
+
+            List<double> outd = new List<double>();
+            
+
+            for (int k=0; k<M; k +=2) // Перебираем числа 0, 2, 4…
+            
+            {    sL = 0 ;                        // Низкочастотный коэффициент
+                sH = 0  ;                       // Высокочастотный коэффициент
+                for (int i=0; i<N; i ++) // Находим сами взвешенные суммы
+                {    sL += data[(M +k + i - delta) % M] * CL[i];
+                sH += data[(M +k + i - delta) % M] * CH[i];
+                  }
+                outd.Add (sL);                 // Добавляем коэффициенты в список
+                outd.Add (sH );
+            }
+
+
+            
+            
+            return outd;
+        }
 
 
         static Tuple<double[], double[]> icoeffs(double[] CL, double[] CH)
