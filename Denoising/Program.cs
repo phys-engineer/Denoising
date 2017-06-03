@@ -102,7 +102,7 @@ namespace Denoising
             int N = CL.Length;
             int M = data.Count;
             double sL=0, sH=0;
-            double t=t0*Math.Pow(2, (J-step)/2));
+            double t=t0*Math.Pow(2, (J-step)/2);
 
             List<double> outsL = new List<double>();
             List<double> outhL = new List<double>();
